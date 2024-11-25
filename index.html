@@ -1,4 +1,3 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -29,14 +28,18 @@
             transform: translateX(-50%);
         }
     </style>
-    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
     <div id="status">Waiting for notification...</div>
     <script>
-        const socket = io();
-        
-        socket.on('flash-trigger', () => {
+        // Function to get URL parameters
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Function to trigger flash
+        function triggerFlash() {
             document.body.classList.add('flash');
             document.getElementById('status').textContent = 'Notification received!';
             
@@ -45,7 +48,26 @@
                 document.body.classList.remove('flash');
                 document.getElementById('status').textContent = 'Waiting for notification...';
             }, 5000);
-        });
+        }
+
+        // Check if we should flash on load
+        if (getQueryParam('flash') === 'true') {
+            triggerFlash();
+        }
+
+        // Poll for changes
+        let lastChecked = Date.now();
+        setInterval(() => {
+            fetch(`https://arunn2493-vay.github.io/virtual-flash-light/timestamp.txt?nocache=${Date.now()}`)
+                .then(response => response.text())
+                .then(timestamp => {
+                    if (timestamp > lastChecked) {
+                        triggerFlash();
+                        lastChecked = timestamp;
+                    }
+                })
+                .catch(console.error);
+        }, 1000);
     </script>
 </body>
 </html>
