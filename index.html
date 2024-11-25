@@ -1,34 +1,51 @@
+<!-- public/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    body {
-      background-color: black;
-    }
-    .flash {
-      animation: flash 1s infinite;
-    }
-    @keyframes flash {
-      0%, 100% { background-color: black; }
-      50% { background-color: red; }
-    }
-  </style>
+    <title>Flash Notification</title>
+    <style>
+        body {
+            background-color: black;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .flash {
+            animation: flash 1s infinite;
+        }
+        @keyframes flash {
+            0%, 100% { background-color: black; }
+            50% { background-color: red; }
+        }
+        #status {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-  <script>
-    // Get URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const shouldFlash = urlParams.get('flash');
-
-    // Flash only if the 'flash' parameter is present and true
-    if (shouldFlash === 'true') {
-      document.body.classList.add('flash');
-      
-      // Stop flashing after 5 seconds
-      setTimeout(() => {
-        document.body.classList.remove('flash');
-      }, 5000); // Adjust duration as needed
-    }
-  </script>
+    <div id="status">Waiting for notification...</div>
+    <script>
+        const socket = io();
+        
+        socket.on('flash-trigger', () => {
+            document.body.classList.add('flash');
+            document.getElementById('status').textContent = 'Notification received!';
+            
+            // Stop flashing after 5 seconds
+            setTimeout(() => {
+                document.body.classList.remove('flash');
+                document.getElementById('status').textContent = 'Waiting for notification...';
+            }, 5000);
+        });
+    </script>
 </body>
 </html>
