@@ -16,19 +16,28 @@
 </head>
 <body>
   <script>
-    // Get URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const shouldFlash = urlParams.get('flash');
+    // Function to poll the server
+    async function checkForFlash() {
+      try {
+        // Fetch the server with the flash=true parameter
+        const response = await fetch('https://arunn2493-vay.github.io/virtual-flash-light/index.html?flash=true');
+        const urlParams = new URLSearchParams(window.location.search);
+        const shouldFlash = urlParams.get('flash');
 
-    // Flash only if the 'flash' parameter is present and true
-    if (shouldFlash === 'true') {
-      document.body.classList.add('flash');
-      
-      // Stop flashing after 5 seconds
-      setTimeout(() => {
-        document.body.classList.remove('flash');
-      }, 5000); // Adjust duration as needed
+        // Trigger the flash if 'flash=true' is detected
+        if (shouldFlash === 'true') {
+          document.body.classList.add('flash');
+          setTimeout(() => {
+            document.body.classList.remove('flash');
+          }, 5000); // Adjust duration as needed
+        }
+      } catch (error) {
+        console.error('Error checking for flash:', error);
+      }
     }
+
+    // Poll the server every 5 seconds
+    setInterval(checkForFlash, 5000);
   </script>
 </body>
 </html>
