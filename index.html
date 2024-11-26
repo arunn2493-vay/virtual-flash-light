@@ -18,7 +18,8 @@
   <script>
     console.log('Script is loaded and running');
     // Function to poll the server
-    let flashTimeout; // Store the timeout reference
+let flashTimeout; // Store the timeout reference
+let lastFlashState = false; // Track whether the last request triggered a flash
 
 async function checkForFlash() {
   try {
@@ -28,13 +29,14 @@ async function checkForFlash() {
 
     // Extract the URL and query parameters
     const url = new URL(response.url);
-    const shouldFlash = url.searchParams.get('flash');
+    const shouldFlash = url.searchParams.get('flash') === 'true'; // Convert to boolean
     console.log('Flash parameter detected:', shouldFlash);
 
-    if (shouldFlash === 'true') {
+    // Trigger the flash only if a new "flash=true" is detected
+    if (shouldFlash && !lastFlashState) {
       console.log('Triggering flash animation...');
 
-      // Clear any ongoing flash
+      // Clear any ongoing flash timeout
       if (flashTimeout) {
         clearTimeout(flashTimeout);
       }
@@ -45,6 +47,12 @@ async function checkForFlash() {
         document.body.classList.remove('flash');
         console.log('Flash animation ended');
       }, 3000); // Flash for 3 seconds
+
+      // Update the last flash state
+      lastFlashState = true;
+    } else if (!shouldFlash) {
+      // Reset the last flash state if "flash=true" is no longer detected
+      lastFlashState = false;
     }
   } catch (error) {
     console.error('Error during polling:', error);
@@ -53,6 +61,7 @@ async function checkForFlash() {
 
 // Poll every 2 seconds
 setInterval(checkForFlash, 2000);
+
 
 
 
