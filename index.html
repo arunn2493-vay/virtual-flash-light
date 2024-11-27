@@ -19,7 +19,7 @@
     console.log('Script is loaded and running');
     // Function to poll the server
 let flashTimeout; // Store the timeout reference
-let lastFlashState = false; // Track whether the last request triggered a flash
+let lastFlashState = false; // Track whether a flash has already been triggered
 
 async function checkForFlash() {
   try {
@@ -35,26 +35,27 @@ async function checkForFlash() {
     // Trigger the flash only if a new "flash=true" is detected
     if (shouldFlash && !lastFlashState) {
       console.log('Triggering flash animation...');
-
+      
       // Add the flash class to the body
       document.body.classList.add('flash');
 
-      // Clear any ongoing timeout
+      // Set the state to prevent redundant flashes
+      lastFlashState = true;
+
+      // Clear any existing timeout
       if (flashTimeout) {
         clearTimeout(flashTimeout);
       }
 
-      // Remove the flash class after 3 seconds
+      // Remove the flash class after 3 seconds and reset the state
       flashTimeout = setTimeout(() => {
         document.body.classList.remove('flash');
         console.log('Flash animation ended');
-
-        // Reset the state after the flash ends
-        lastFlashState = false;
+        lastFlashState = false; // Reset the state for the next new detection
       }, 3000); // Flash for 3 seconds
-
-      // Set the state to avoid redundant flashes during this interval
-      lastFlashState = true;
+    } else if (!shouldFlash) {
+      // Reset the state if "flash=true" is no longer detected
+      lastFlashState = false;
     }
   } catch (error) {
     console.error('Error during polling:', error);
@@ -63,6 +64,7 @@ async function checkForFlash() {
 
 // Poll every 2 seconds
 setInterval(checkForFlash, 2000);
+
 
 
   </script>
