@@ -19,7 +19,7 @@
     console.log('Script is loaded and running');
     // Function to poll the server
 let flashTimeout; // Store the timeout reference
-let lastMessageTimestamp = null; // Track the last detected message timestamp
+let lastFlashState = false; // Track the last detected flash state
 
 async function checkForFlash() {
   try {
@@ -32,21 +32,19 @@ async function checkForFlash() {
     // Extract the URL and query parameters
     const url = new URL(response.url);
     const shouldFlash = url.searchParams.get('flash') === 'true'; // Check if flash=true
-    const currentTimestamp = Date.now(); // Mock: Replace with real server timestamp if available
     console.log(`Flash parameter detected: ${shouldFlash}`);
-    console.log(`Current timestamp: ${currentTimestamp}`);
 
-    // Trigger the flash ONLY if flash=true and the timestamp has changed
-    if (shouldFlash && currentTimestamp !== lastMessageTimestamp) {
-      console.log('Triggering flash animation for new message...');
+    // Trigger the flash ONLY IF flash=true AND it's different from the lastFlashState
+    if (shouldFlash && !lastFlashState) {
+      console.log('Triggering flash animation for new detection...');
 
       // Add the flash class to the body
       document.body.classList.add('flash');
 
-      // Update the last message timestamp
-      lastMessageTimestamp = currentTimestamp;
+      // Update the last flash state
+      lastFlashState = true;
 
-      // Clear any ongoing timeout
+      // Clear any existing timeout
       if (flashTimeout) {
         clearTimeout(flashTimeout);
       }
@@ -57,6 +55,12 @@ async function checkForFlash() {
         console.log('Flash animation ended');
       }, 3000); // Flash for 3 seconds
     }
+
+    // Reset lastFlashState when flash=false
+    if (!shouldFlash && lastFlashState) {
+      console.log('Resetting lastFlashState due to flash=false...');
+      lastFlashState = false;
+    }
   } catch (error) {
     console.error('Error during polling:', error);
   }
@@ -64,6 +68,7 @@ async function checkForFlash() {
 
 // Poll every 2 seconds
 setInterval(checkForFlash, 2000);
+
 
 
 
