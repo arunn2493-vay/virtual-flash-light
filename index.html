@@ -19,7 +19,7 @@
     console.log('Script is loaded and running');
     // Function to poll the server
 let flashTimeout; // Store the timeout reference
-let lastFlashState = false; // Track whether the last request triggered a flash
+let lastMessageTimestamp = null; // Track the last detected message timestamp
 
 async function checkForFlash() {
   try {
@@ -29,20 +29,22 @@ async function checkForFlash() {
     const response = await fetch('https://arunn2493-vay.github.io/virtual-flash-light/index.html?flash=true');
     console.log('Polling response received:', response);
 
-    // Parse the response URL and extract the flash parameter
+    // Extract the URL and query parameters
     const url = new URL(response.url);
     const shouldFlash = url.searchParams.get('flash') === 'true'; // Check if flash=true
+    const currentTimestamp = Date.now(); // Mock: Replace with real server timestamp if available
     console.log(`Flash parameter detected: ${shouldFlash}`);
+    console.log(`Current timestamp: ${currentTimestamp}`);
 
-    // Trigger the flash ONLY IF flash=true and lastFlashState is false
-    if (shouldFlash && !lastFlashState) {
-      console.log('Triggering flash animation...');
+    // Trigger the flash ONLY if flash=true and the timestamp has changed
+    if (shouldFlash && currentTimestamp !== lastMessageTimestamp) {
+      console.log('Triggering flash animation for new message...');
 
       // Add the flash class to the body
       document.body.classList.add('flash');
 
-      // Set lastFlashState to true to avoid redundant flashes
-      lastFlashState = true;
+      // Update the last message timestamp
+      lastMessageTimestamp = currentTimestamp;
 
       // Clear any ongoing timeout
       if (flashTimeout) {
@@ -55,14 +57,6 @@ async function checkForFlash() {
         console.log('Flash animation ended');
       }, 3000); // Flash for 3 seconds
     }
-
-    // If flash=false, reset lastFlashState
-    if (!shouldFlash) {
-      if (lastFlashState) {
-        console.log('Resetting lastFlashState due to flash=false.');
-      }
-      lastFlashState = false;
-    }
   } catch (error) {
     console.error('Error during polling:', error);
   }
@@ -70,6 +64,7 @@ async function checkForFlash() {
 
 // Poll every 2 seconds
 setInterval(checkForFlash, 2000);
+
 
 
 
