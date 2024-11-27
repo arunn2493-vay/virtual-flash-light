@@ -34,14 +34,14 @@ async function checkForFlash() {
     const shouldFlash = url.searchParams.get('flash') === 'true'; // Check if flash=true
     console.log(`Flash parameter detected: ${shouldFlash}`);
 
-    // Trigger the flash only if flash=true and lastFlashState is false
+    // Trigger the flash ONLY IF flash=true and lastFlashState is false
     if (shouldFlash && !lastFlashState) {
       console.log('Triggering flash animation...');
-      
+
       // Add the flash class to the body
       document.body.classList.add('flash');
 
-      // Set lastFlashState to true
+      // Set lastFlashState to true to avoid redundant flashes
       lastFlashState = true;
 
       // Clear any ongoing timeout
@@ -53,14 +53,14 @@ async function checkForFlash() {
       flashTimeout = setTimeout(() => {
         document.body.classList.remove('flash');
         console.log('Flash animation ended');
+      }, 3000); // Flash for 3 seconds
+    }
 
-        // Reset lastFlashState after the animation ends
-        lastFlashState = false;
-        console.log('lastFlashState reset to false');
-      }, 3000);
-    } else if (!shouldFlash) {
-      // Reset lastFlashState if flash=true is no longer detected
-      console.log('No flash detected; resetting lastFlashState.');
+    // If flash=false, reset lastFlashState
+    if (!shouldFlash) {
+      if (lastFlashState) {
+        console.log('Resetting lastFlashState due to flash=false.');
+      }
       lastFlashState = false;
     }
   } catch (error) {
@@ -70,6 +70,7 @@ async function checkForFlash() {
 
 // Poll every 2 seconds
 setInterval(checkForFlash, 2000);
+
 
 
   </script>
